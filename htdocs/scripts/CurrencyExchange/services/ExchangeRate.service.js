@@ -2,23 +2,36 @@
     "use strict";
     angular
         .module('CurrencyExchange')
-        .factory('ExchangeRateService',[exchangeRateService]);
+        .factory('ExchangeRateService',["$q", exchangeRateService]);
 
-    function exchangeRateService()
+    function exchangeRateService($q)
     {
         var numRowsLoaded = 0;
         var numRowsErrors = 0;
         var currencyInfo = {};
         var exchangeCsv = "/MonthlyExchangeRate.ss.csv";
         var currencyList = [];
-        var initializedCallback = undefined;
+        var promises = [];
+        var initialized = false;
+        // 0 = unit, 1 = init, 2 = error
+        var initState = 0;
+        var errorMsg = undefined;
 
+        initService();
         return {
-            InitService: initService,
+            WaitForService: waitForService,
             ConvertToUSD: convertToUSD,
             IsValidCurrency: isValidCurrency,
             get CurrencyList() {return currencyList;}
         };
+
+        function serviceResults()
+        {
+            return {
+                numRows: numRowsLoaded,
+                numErrors: numRowsErrors,
+            };
+        }
 
         function initService (callbackFn)
         {
@@ -34,7 +47,7 @@
                 step: function(results, parser){
                     if (results.errors.length != 0)
                     {
-                        numRowsErrors += 1;
+                        numRowsErrors += results.errors.length;
                         return;
                     }
                     var resultCount = 0;
@@ -50,15 +63,16 @@
                     for (var currency in currencyInfo)
                         if (currencyInfo.hasOwnProperty(currency))
                             currencyList.push(currency);
-                    if (initializedCallback != undefined)
-                        initializedCallback();
+                    markState(1);
                     console.log("Parsing complete:",
                                 currencyInfo,
                                 file,
                                 numRowsErrors,
                                 numRowsLoaded);
                 },
-                error: undefined,
+                error: function(err, file){
+                    markState(2, err);
+                },
                 download: true, // only
                 skipEmptyLines: false,
                 chunk: undefined,
@@ -67,8 +81,52 @@
                 withCredentials: undefined
             };
             initCurrencyLoader();
-            initializedCallback = callbackFn;
             Papa.parse(exchangeCsv, config);
+        }
+
+        function fullfillPromises()
+        {
+            if (initState == 1)
+                resolvePromises();
+            else if (initState == 2)
+                rejectPromises();
+        }
+        function resolvePromises()
+        {
+            for (var i = 0;i< promises.length;i++)
+            {
+                promises[i].resolve(serviceResults());
+            }
+            promises = [];
+        }
+
+        function rejectPromises()
+        {
+            for (var i = 0;i< promises.length;i++)
+            {
+                promises[i].reject(errorMsg);
+            }
+            promises = [];
+        }
+
+        function markState(state, err)
+        {
+            // As papa parse API is not clear that complete and error are exclusive
+            // we will ensure that state is only changes from 0 to 1 or 2
+            if (initState != 0 || state == 0)
+                return;
+            initState = state;
+            errorMsg = err;
+            fullfillPromises();
+        }
+
+        function waitForService()
+        {
+            var deferred = $q.defer();
+            promises.push(deferred);
+            if (initState != 0)
+                fullfillPromises();
+            return deferred.promise;
         }
 
         function convertToUSD (currency,
@@ -108,7 +166,6 @@
             numRowsErrors = 0;
             currencyInfo = {};
             currencyList = [];
-            initializedCallback = undefined;
         }
 
         function loadExchangeData (currencyCode,

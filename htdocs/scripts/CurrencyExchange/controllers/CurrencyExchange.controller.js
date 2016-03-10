@@ -3,11 +3,10 @@
     angular
         .module('CurrencyExchange')
         .controller("CurrencyExchangeController",
-                    ["$scope",
-                    "ExchangeRateService",
+                    ["ExchangeRateService",
                     currencyExchangeController]);
 
-        function currencyExchangeController ($scope, ExchangeRateService)
+        function currencyExchangeController (ExchangeRateService)
         {
             var self = this;
 
@@ -17,6 +16,7 @@
             self.Currencies = [];
             self.Amounts=[];
             self.ExchangeRate = null;
+            self.ErrorMsg = null;
 
             self.UpdateExchangeRate = function() {
                 self.ExchangeRate = null
@@ -44,13 +44,15 @@
                                     .split(/\s+/mg)
                                     .map(parseFloat);
             };
-
-            ExchangeRateService.InitService(function() {
-                self.Currencies = ExchangeRateService.CurrencyList;
-                self.CurrencyState = "initialized";
-                console.log($scope);
-                $scope.$digest();
-            });
+            ExchangeRateService.WaitForService().then(
+                function(state) {
+                    self.Currencies = ExchangeRateService.CurrencyList;
+                    self.CurrencyState = "initialized";
+                },
+                function(errorMsg) {
+                    self.CurrencyState = "error";
+                    self.ErrorMsg = errorMsg;
+                });
 
             function currency(currencycode) {
                 var self = this;

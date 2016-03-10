@@ -59,6 +59,7 @@
         </form>
     </div>
     <div ng-show="Ctrl.CurrencyState == 'uninitialized'">Loading...</div>
+    <div ng-show="Ctrl.CurrencyState == 'error'">Unable to initalize...{{Ctrl.ErrorMsg}}</div>
     </body>
 </html>
 
