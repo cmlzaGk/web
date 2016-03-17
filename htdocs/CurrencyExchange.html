@@ -15,24 +15,20 @@
             <table>
                 <tr>
                     <td><label>From:</label></td>
-                    <td><input type="text" ng-model="Ctrl.CurrencyFrom.Name" list="Currencies" placeholder="Enter Currencies Here" ng-change="Ctrl.UpdateExchangeRate()" autocomplete="off"/>
-                        <label ng-show="Ctrl.CurrencyFrom.Validity() == 'empty'">*</label>
-                        <label ng-show="Ctrl.CurrencyFrom.Validity() == 'invalid'">{{Ctrl.CurrencyFrom.Name}} is not a known currency</label>
-                    </td>
-                    <td ng-switch="Ctrl.CurrencyFrom.Validity()">
+                    <td><input name="currencyfrom" type="text" ng-model="Ctrl.CurrencyFrom" list="Currencies" placeholder="Enter Currencies Here" ng-change="Ctrl.UpdateExchangeRate()" autocomplete="off" required/>
+                        <label ng-show="myForm.currencyfrom.$error.required">*</label>
                     </td>
                 </tr>
                 <tr>
                   <td><label>To:</label></td>
-                  <td><input type="text" ng-model="Ctrl.CurrencyTo.Name" list="Currencies" placeholder="Enter Currencies Here" ng-change="Ctrl.UpdateExchangeRate()" autocomplete="off"/>
-                        <label ng-show="Ctrl.CurrencyTo.Validity() == 'empty'">*</label>
-                        <label ng-show="Ctrl.CurrencyTo.Validity() == 'invalid'">{{Ctrl.CurrencyTo.Name}} is not a known currency</label>
+                  <td><input name="currencyto" type="text" ng-model="Ctrl.CurrencyTo" list="Currencies" placeholder="Enter Currencies Here" ng-change="Ctrl.UpdateExchangeRate()" autocomplete="off" required/>
+                        <label ng-show="myForm.currencyto.$error.required">*</label>
                    </td>
                 </tr>
                 <tr>
                   <td><label>On:</label></td>
-                  <td><input name="transactiondate" type="date" ng-model="Ctrl.TransactionDate" ng-change="Ctrl.UpdateExchangeRate()" required/>
-                  <label ng-show="myForm.transactiondate.$error.required">*</label>
+                  <td><input name="transactiondate" placeholder="MM/DD/YYYY" type="text" ng-pattern="/^\d{2}\/\d{2}\/\d{4}$/" ng-model="Ctrl.TransactionDate" ng-change="Ctrl.UpdateExchangeRate()" required/>
+                  <label ng-show="myForm.transactiondate.$invalid">*</label>
                   </td>
                 </tr>
                 <tr>
@@ -44,12 +40,12 @@
                 <option ng-repeat="currency in Ctrl.Currencies" value="{{currency}}">
             </datalist>
             <hr>
-            <label ng-show="Ctrl.TransactionDate != null && Ctrl.CurrencyFrom.Validity() == 'valid' && Ctrl.CurrencyTo.Validity() == 'valid' && Ctrl.ExchangeRate">ExchangeRate is {{Ctrl.ExchangeRate}}</label>
-            <label ng-show="Ctrl.TransactionDate != null && Ctrl.CurrencyFrom.Validity() == 'valid' && Ctrl.CurrencyTo.Validity() == 'valid' && !Ctrl.ExchangeRate">ExchangeRate is not available for {{Ctrl.TransactionDate.toDateString()}}</label>
+            <label ng-show="myForm.$valid && Ctrl.ExchangeRate">ExchangeRate is {{Ctrl.ExchangeRate}}</label>
+            <label ng-show="myForm.$valid && !Ctrl.ExchangeRate">ExchangeRate is not available </label>
             <table ng-show="Ctrl.ExchangeRate != null && Ctrl.Amounts.length != 0" border="1">
                 <tr>
-                    <th>{{Ctrl.CurrencyFrom.Name}}</th>
-                    <th>{{Ctrl.CurrencyTo.Name}}</th>
+                    <th>{{Ctrl.CurrencyFrom}}</th>
+                    <th>{{Ctrl.CurrencyTo}}</th>
                 </tr>
                 <tr ng-repeat='amount in Ctrl.Amounts track by $index'>
                     <th>{{amount}}</th>
@@ -62,4 +58,3 @@
     <div ng-show="Ctrl.CurrencyState == 'error'">Unable to initalize...{{Ctrl.ErrorMsg}}</div>
     </body>
 </html>
-

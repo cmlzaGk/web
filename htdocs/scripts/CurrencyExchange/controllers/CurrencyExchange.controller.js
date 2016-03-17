@@ -11,39 +11,48 @@
             var self = this;
 
             self.CurrencyState = "uninitialized";
-            self.CurrencyFrom = new currency("");
-            self.CurrencyTo = new currency("");
+            self.CurrencyFrom = null;
+            self.CurrencyTo = null;
+            self.UserAmounts = null;
+            self.TransactionDate = null;
             self.Currencies = [];
             self.Amounts=[];
             self.ExchangeRate = null;
             self.ErrorMsg = null;
 
             self.UpdateExchangeRate = function() {
-                self.ExchangeRate = null
-                if (!self.TransactionDate)
+                self.ExchangeRate = null;
+                if (!self.TransactionDate || !self.CurrencyFrom || !self.CurrencyTo)
                     return;
                 var dateTransactionDate = new Date(self.TransactionDate);
                 var rateFrom = ExchangeRateService.ConvertToUSD (
-                                self.CurrencyFrom.Name,
+                                self.CurrencyFrom,
                                 "P&L",
                                 dateTransactionDate);
+                if (!rateFrom)
+                    return ;
                 var rateTo = ExchangeRateService.ConvertToUSD(
-                                self.CurrencyTo.Name,
+                                self.CurrencyTo,
                                 "P&L",
                                 dateTransactionDate);
-                if (rateFrom && rateTo)
-                    self.ExchangeRate = rateFrom/rateTo;
+                if (!rateTo)
+                    return ;
+                self.ExchangeRate = rateFrom/rateTo;
             };
 
             self.UpdateAmounts = function() {
                 self.Amounts = []
+                if (!self.UserAmounts)
+                    return;
                 var trimmed = self.UserAmounts.trim();
-                if (trimmed != '')
-                    self.Amounts =  trimmed
+                if (trimmed == '')
+                    return;
+                self.Amounts =  trimmed
                                     .replace(/[$(),]/g,'')
                                     .split(/\s+/mg)
                                     .map(parseFloat);
             };
+
             ExchangeRateService.WaitForService().then(
                 function(state) {
                     self.Currencies = ExchangeRateService.CurrencyList;
@@ -54,16 +63,5 @@
                     self.ErrorMsg = errorMsg;
                 });
 
-            function currency(currencycode) {
-                var self = this;
-                self.Name = currencycode;
-                self.Validity = function() {
-                    if (self.Name.trim() == 0)
-                        return "empty";
-                    if (ExchangeRateService.IsValidCurrency(self.Name))
-                        return "valid";
-                    return "invalid";
-                }
-            }
         }
 })(window.angular);
