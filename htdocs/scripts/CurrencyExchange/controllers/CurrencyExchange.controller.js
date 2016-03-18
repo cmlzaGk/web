@@ -55,7 +55,7 @@
             };
 
             ExchangeRateService.WaitForService().then(
-                function(state) {
+                function(ignore) {
                     self.Currencies = ExchangeRateService.CurrencyList;
                     self.CurrencyState = "initialized";
                 },

@@ -12,7 +12,6 @@
         var exchangeCsv = "/MonthlyExchangeRate.ss.csv";
         var currencyList = [];
         var promises = [];
-        var initialized = false;
         // 0 = unit, 1 = init, 2 = error
         var initState = 0;
         var errorMsg = undefined;
@@ -33,7 +32,7 @@
             };
         }
 
-        function initService (callbackFn)
+        function initService ()
         {
             var config = {
                 delimiter: "",// auto-detect
@@ -44,7 +43,7 @@
                 encoding: "",
                 worker: false,
                 comments: false,
-                step: function(results, parser){
+                step: function(results, ignore){
                     if (results.errors.length != 0)
                     {
                         numRowsErrors += results.errors.length;
@@ -59,7 +58,7 @@
                         numRowsLoaded += 1;
                     }
                 },
-                complete: function(results, file) {
+                complete: function(ignore, file) {
                     for (var currency in currencyInfo)
                         if (currencyInfo.hasOwnProperty(currency))
                             currencyList.push(currency);
@@ -70,7 +69,7 @@
                                 numRowsErrors,
                                 numRowsLoaded);
                 },
-                error: function(err, file){
+                error: function(err, ignore){
                     markState(2, err);
                 },
                 download: true, // only
