@@ -44,7 +44,7 @@
                 <option ng-repeat="currency in Ctrl.Currencies" value="{{currency}}">
             </datalist>
             <hr>
-            <label ng-show="myForm.$valid && Ctrl.ExchangeRate">ExchangeRate is {{Ctrl.ExchangeRate|number:2}}</label>
+            <label ng-show="myForm.$valid && Ctrl.ExchangeRate">ExchangeRate is {{Ctrl.ExchangeRate|number:4}}</label>
             <label ng-show="myForm.$valid && !Ctrl.ExchangeRate">ExchangeRate is not available </label>
             <table ng-show="Ctrl.ExchangeRate != null && Ctrl.Amounts.length != 0" border="1">
                 <tr>
@@ -52,7 +52,7 @@
                     <th>{{Ctrl.CurrencyTo}}</th>
                 </tr>
                 <tr ng-repeat='amount in Ctrl.Amounts track by $index'>
-                    <td>{{amount|number:2}}</td>
+                    <td>{{amount|number}}</td>
                     <td>{{(amount * Ctrl.ExchangeRate)|number:2}}</td>
                 </tr>
             </table>
