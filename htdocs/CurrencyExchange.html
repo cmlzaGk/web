@@ -37,6 +37,10 @@
                   <td><label>Amounts:</label></td>
                   <td><textarea ng-model="Ctrl.UserAmounts" ng-change="Ctrl.UpdateAmounts()" rows="10" cols="50"></textarea></td>
                 </tr>
+                <tr>
+                  <td><input type="radio" name="exchangeRateType" ng-model="Ctrl.RateType" value="P&L" ng-change="Ctrl.UpdateExchangeRate()">P&amp;L</input></td>
+                  <td><input type="radio" name="exchangeRateType" ng-model="Ctrl.RateType" value="BAL" ng-change="Ctrl.UpdateExchangeRate()">BAL</input></td>
+                </tr>
             </table>
             <datalist id="Currencies">
                 <option ng-repeat="currency in Ctrl.Currencies" value="{{currency}}">

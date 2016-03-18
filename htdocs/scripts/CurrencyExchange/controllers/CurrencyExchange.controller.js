@@ -17,6 +17,7 @@
             self.TransactionDate = null;
             self.Currencies = [];
             self.Amounts=[];
+            self.RateType="P&L";
             self.ExchangeRate = null;
             self.ErrorMsg = null;
 
@@ -27,13 +28,13 @@
                 var dateTransactionDate = new Date(self.TransactionDate);
                 var rateFrom = ExchangeRateService.ConvertToUSD (
                                 self.CurrencyFrom,
-                                "P&L",
+                                self.RateType,
                                 dateTransactionDate);
                 if (!rateFrom)
                     return ;
                 var rateTo = ExchangeRateService.ConvertToUSD(
                                 self.CurrencyTo,
-                                "P&L",
+                                self.RateType,
                                 dateTransactionDate);
                 if (!rateTo)
                     return ;
